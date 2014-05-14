@@ -44,7 +44,6 @@ Drupal.quickEdit = Drupal.quickEdit || {
     initialize: function(options) {
       this.tabModel = options.tabModel;
       this.tabModel.on('change:isQuickEditActive', this.render, this);
-      //this.listenTo(Drupal.edit.collections.entities, 'add', console.log('test'));
     },
 
     render: function() {
@@ -58,7 +57,7 @@ Drupal.quickEdit = Drupal.quickEdit || {
       $editProcessed = $('.edit-processed');
       $editItems = [];
       $activeItem = '';
-      // Create a list of edit-able children and highlight them.
+      // Create a list of editable children and highlight them.
       if ($editProcessed.length > 1) {
         // Clear storage array.
         $editItems.length = 0;
@@ -68,7 +67,7 @@ Drupal.quickEdit = Drupal.quickEdit || {
             // Highlight or remove contextual link highlights.
             $classes = 'contextual-links-trigger-active quick-edit-contextual-link'
             // Check for Contextual Link as sibling (ie: Panelizer)
-            $contextualLink = $(this).siblings('.contextual-links-trigger');
+            $contextualLink = $(this).siblings('.contextual-links-wrapper').find('.contextual-links-trigger');
             // No sibling, assume it is a child of item.
             if ($contextualLink.length == 0) {
               $contextualLink = $(this).find('.contextual-links-trigger');
@@ -79,7 +78,7 @@ Drupal.quickEdit = Drupal.quickEdit || {
             if ($(this).hasClass('edit-entity-active')) {
               $activeItem = $(this); 
             }
-            // Add the edit-able child to storage array.
+            // Add the editable child to storage array.
             $editItems.push($(this));
           }
         });
@@ -95,7 +94,10 @@ Drupal.quickEdit = Drupal.quickEdit || {
             entityID: $editItems[0].attr('data-edit-entity-id'),
             entityInstanceID: $editItems[0].attr('data-edit-entity-instance-id')
           });
-          $item.set('state', $state);
+          // Only launch without an active item. Only deactivate with an active item.
+          if (($state == 'launching' && $activeItem == '') || ($state == 'deactivating' && $activeItem != '')) {
+            $item.set('state', $state);
+          }
         }
         // Toggle the active state for the quick edit navbar tab.
         this.tabModel.set('isQuickEditActive', !this.tabModel.get('isQuickEditActive'));

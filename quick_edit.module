@@ -17,6 +17,7 @@ function quick_edit_library() {
     ),
     'js' => array(
       $path . '/js/quick-edit.js' => $options,
+      $path . '/js/contextual.js' => $options,
     ),
     'dependencies' => array(
       array('system', 'jquery'),
@@ -60,3 +61,11 @@ function quick_edit_navbar() {
   );
   return $items;
 }
+
+/**
+ * Implements hook_js_alter().
+ */
+function quick_edit_js_alter(&$javascript) {
+  unset($javascript['modules/contextual/contextual.js']);
+}
+

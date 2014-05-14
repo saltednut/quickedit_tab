@@ -44,6 +44,7 @@ Drupal.quickEdit = Drupal.quickEdit || {
     initialize: function(options) {
       this.tabModel = options.tabModel;
       this.tabModel.on('change:isQuickEditActive', this.render, this);
+      //this.listenTo(Drupal.edit.collections.entities, 'add', console.log('test'));
     },
 
     render: function() {
@@ -59,18 +60,21 @@ Drupal.quickEdit = Drupal.quickEdit || {
       $activeItem = '';
       // Create a list of edit-able children and highlight them.
       if ($editProcessed.length > 1) {
+        // Clear storage array.
         $editItems.length = 0;
+        // Check all .edit-processed items
         $editProcessed.each(function(index) {
           if ($(this).attr('data-edit-entity-id')) {
             // Highlight or remove contextual link highlights.
             $classes = 'contextual-links-trigger-active quick-edit-contextual-link'
-            $contextualLink = $(this).find('.contextual-links-trigger');
-            if (!$quickEditActive) {
-              $contextualLink.addClass($classes);
+            // Check for Contextual Link as sibling (ie: Panelizer)
+            $contextualLink = $(this).siblings('.contextual-links-trigger');
+            // No sibling, assume it is a child of item.
+            if ($contextualLink.length == 0) {
+              $contextualLink = $(this).find('.contextual-links-trigger');
             }
-            else {
-              $contextualLink.removeClass($classes);
-            }
+            // Add or remove the appropriate classes.
+            (!$quickEditActive) ? $contextualLink.addClass($classes) : $contextualLink.removeClass($classes);
             // Search for an active child.
             if ($(this).hasClass('edit-entity-active')) {
               $activeItem = $(this); 

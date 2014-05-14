@@ -15,7 +15,8 @@
 
 #navbar-administration .navbar-bar #quick-edit-navbar-tab.active,
 #navbar-administration .navbar-bar #quick-edit-navbar-tab.active:hover {
-  background-color: rgb(69,132,221);
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.25) 20%, transparent 200%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.25) 20%, transparent 200%);
 }
 
 #navbar-administration .navbar-bar #quick-edit-navbar-tab .navbar-icon.navbar-icon-quick-edit {
@@ -38,4 +39,11 @@
 
 #navbar-administration .navbar-bar #quick-edit-navbar-tab.active .navbar-icon.navbar-icon-quick-edit {
   background-image: url("../images/quick-edit-active.png");
+}
+
+a.quick-edit-contextual-link {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 13px;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }

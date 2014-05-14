@@ -1,0 +1,7 @@
+name = Quick Edit
+description = Navbar integration for In-place content editing.
+package = Spark
+core = 7.x
+
+dependencies[] = edit
+dependencies[] = navbar

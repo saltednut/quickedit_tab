@@ -1,0 +1,41 @@
+#navbar-administration .navbar-bar #quick-edit-navbar-tab {
+  display: block;
+  float: right;
+  position: relative;
+}
+
+#navbar-administration .navbar-bar #quick-edit-trigger-link {
+  margin: 0;
+}
+
+#navbar-administration .navbar-bar #quick-edit-navbar-tab:hover {
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.125) 20%, transparent 200%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.125) 20%, transparent 200%);
+}
+
+#navbar-administration .navbar-bar #quick-edit-navbar-tab.active,
+#navbar-administration .navbar-bar #quick-edit-navbar-tab.active:hover {
+  background-color: rgb(69,132,221);
+}
+
+#navbar-administration .navbar-bar #quick-edit-navbar-tab .navbar-icon.navbar-icon-quick-edit {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+  width: 3em;
+  height: 3em;
+  background-image: url("../images/quick-edit.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  overflow: hidden;
+  text-indent: -999px;
+}
+
+#navbar-administration .navbar-bar #quick-edit-navbar-tab .navbar-icon.navbar-icon-quick-edit:hover {
+  background-image: url("../images/quick-edit-active.png");
+}
+
+#navbar-administration .navbar-bar #quick-edit-navbar-tab.active .navbar-icon.navbar-icon-quick-edit {
+  background-image: url("../images/quick-edit-active.png");
+}

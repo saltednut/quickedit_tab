@@ -1,6 +1,6 @@
 /**
  * @file
- * Provide a component that switches the sitewide language.
+ * Provide a helper tab for easier inline editing.
  */
 
 (function ($, Backbone, Drupal, undefined) {

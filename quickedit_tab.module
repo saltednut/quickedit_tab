@@ -3,20 +3,20 @@
 /**
  * Implements hook_library().
  */
-function quick_edit_library() {
-  $path = drupal_get_path('module', 'quick_edit');
+function quickedit_tab_library() {
+  $path = drupal_get_path('module', 'quickedit_tab');
   $options = array(
     'scope' => 'footer',
     'defer' => TRUE,
   );
-  $libraries['quick-edit'] = array(
-    'title' => 'Quick in-line editing',
+  $libraries['quickedit-tab'] = array(
+    'title' => 'Quick inline editing',
     'version' => VERSION,
     'css' => array(
-      $path . '/css/quick-edit.css',
+      $path . '/css/quickedit-tab.css',
     ),
     'js' => array(
-      $path . '/js/quick-edit.js' => $options,
+      $path . '/js/quickedit-tab.js' => $options,
       $path . '/js/contextual.js' => $options,
     ),
     'dependencies' => array(
@@ -32,28 +32,28 @@ function quick_edit_library() {
 /**
  * Implements hook_navbar().
  */
-function quick_edit_navbar() {
-  $items['quick_edit_navbar'] = array(
+function quickedit_tab_navbar() {
+  $items['quickedit_tab_navbar'] = array(
     '#type' => 'navbar_item',
     'tab' => array(
       'trigger' => array(
         '#title' => t('Quick Edit'),
         '#type' => 'link',
         '#href' => '',
-        '#options' => array('attributes' => array('id' => 'quick-edit-trigger-link')),
-        '#attached' => array('library' => array(array('quick_edit', 'quick-edit'))),
+        '#options' => array('attributes' => array('id' => 'quickedit-trigger-link')),
+        '#attached' => array('library' => array(array('quickedit_tab', 'quickedit-tab'))),
         '#theme' => 'html_tag',
         '#tag' => 'button',
         '#value' => t('Quick Edit'),
         '#attributes' => array(
-          'class' => array('navbar-icon', 'navbar-icon-quick-edit'),
-          'id' => 'quick-edit-trigger-link'
+          'class' => array('navbar-icon', 'navbar-icon-quickedit'),
+          'id' => 'quickedit-trigger-link'
         ),
       ),
     ),
     '#wrapper_attributes' => array(
-      'id' => 'quick-edit-navbar-tab',
-      'class' => array('navbar-tab-quick-edit', 'element-invisible'),
+      'id' => 'quickedit-navbar-tab',
+      'class' => array('navbar-tab-quickedit', 'element-invisible'),
     ),
     '#weight' => -999,
     '#access' => user_access('access in-place editing'),
@@ -64,7 +64,7 @@ function quick_edit_navbar() {
 /**
  * Implements hook_js_alter().
  */
-function quick_edit_js_alter(&$javascript) {
+function quickedit_tab_js_alter(&$javascript) {
   unset($javascript['modules/contextual/contextual.js']);
 }
 

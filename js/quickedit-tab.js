@@ -7,15 +7,15 @@
 
 "use strict";
 
-Drupal.behaviors.quickEdit = {
+Drupal.behaviors.quickEditTab = {
   attach: function (context) {
     // Use backbone in scenarios where navbar tab is used.
-    var $body = $(window.parent.document.body).once('quick-edit');
+    var $body = $(window.parent.document.body).once('quickedit-tab');
     if ($body.length) {
-      var tabModel = Drupal.quickEdit.models.tabModel = new Drupal.quickEdit.TabStateModel();
-      var $tab = $('#quick-edit-navbar-tab').once('quick-edit');
+      var tabModel = Drupal.quickEditTab.models.tabModel = new Drupal.quickEditTab.TabStateModel();
+      var $tab = $('#quickedit-navbar-tab').once('quickedit-tab');
       if ($tab.length > 0) {
-        Drupal.quickEdit.views.tabView = new Drupal.quickEdit.TabView({
+        Drupal.quickEditTab.views.tabView = new Drupal.quickEditTab.TabView({
           el: $tab.get(),
           model: tabModel
         });
@@ -24,7 +24,7 @@ Drupal.behaviors.quickEdit = {
   }
 };
 
-Drupal.quickEdit = {
+Drupal.quickEditTab = {
 
   // Storage for view and model instances.
   models: {},
@@ -49,7 +49,7 @@ Drupal.quickEdit = {
   // Handles the navbar tab interactions.
   TabView: Backbone.View.extend({
     events: {
-      'click #quick-edit-trigger-link': 'toggleQuickEdit'
+      'click #quickedit-trigger-link': 'toggleQuickEdit'
     },
 
     /**
@@ -156,7 +156,7 @@ Drupal.quickEdit = {
      * Renders contextual links triggers visibility.
      */
     renderContextualLinkTriggers: function (model, show) {
-      var classes = 'contextual-links-trigger-active quick-edit-contextual-link';
+      var classes = 'contextual-links-trigger-active quickedit-contextual-link';
       Drupal.edit.collections.entities.forEach(function (editableEntity) {
         var contextualLinkView = editableEntity.get('contextualLinkView');
         contextualLinkView.$el

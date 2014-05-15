@@ -36,7 +36,7 @@ Drupal.behaviors.contextualLinks = {
         function() { $trigger.addClass('contextual-links-trigger-active'); },
         // Check for the Quick edit highlight.
         function() { 
-          if (!$trigger.hasClass('quick-edit-contextual-link')) { 
+          if (!$trigger.hasClass('quickedit-contextual-link')) { 
             $trigger.removeClass('contextual-links-trigger-active'); 
           } 
         }

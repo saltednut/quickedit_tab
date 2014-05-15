@@ -1,9 +1,11 @@
 /**
  * @file
- * Provide a helper tab for easier inline editing.
+ * Provide a helper tab for easier in-place editing.
  */
 
 (function ($, Backbone, Drupal, undefined) {
+
+"use strict";
 
 Drupal.behaviors.quickEdit = {
   attach: function (context) {
@@ -15,97 +17,157 @@ Drupal.behaviors.quickEdit = {
       if ($tab.length > 0) {
         Drupal.quickEdit.views.tabView = new Drupal.quickEdit.TabView({
           el: $tab.get(),
-          tabModel: tabModel,
+          model: tabModel
         });
       }
     }
   }
 };
 
-Drupal.quickEdit = Drupal.quickEdit || {
+Drupal.quickEdit = {
 
   // Storage for view and model instances.
-  views: {},
   models: {},
+  views: {},
 
   // Backbone Model for the navbar tab state.
   TabStateModel: Backbone.Model.extend({
     defaults: {
-      isQuickEditActive: false
+      // Track how many in-place editable entities exist on the page.
+      entityCount: 0,
+      // The entity currently being in-place edited, if any.
+      activeEntity: null,
+      // The contextual links triggers are visible. (This only happens when
+      // there are multiple in-place editable entities on the page.)
+      contextualLinksTriggersVisible: false,
+      // When there is either an active entity, or contextual links triggers are
+      // visible, we consider the tab "active".
+      isActive: false
     }
   }),
 
   // Handles the navbar tab interactions.
   TabView: Backbone.View.extend({
     events: {
-      'click #quick-edit-trigger-link': 'toggleQuickEdit',
+      'click #quick-edit-trigger-link': 'toggleQuickEdit'
     },
 
-    initialize: function(options) {
-      this.tabModel = options.tabModel;
-      this.tabModel.on('change:isQuickEditActive', this.render, this);
+    /**
+     * {@inheritdoc}
+     */
+    initialize: function (options) {
+      this.listenTo(this.model, {
+        'change:activeEntity change:contextualLinksTriggersVisible': this.updateActiveness,
+        'change:entityCount change:isActive': this.render,
+        'change:contextualLinksTriggersVisible': this.renderContextualLinkTriggers
+      });
+
+      this.listenTo(Drupal.edit.collections.entities, {
+        'add remove reset': this.countEntities,
+        'change:state': this.entityStateChange
+      });
+      // In Drupal 7, we cannot use asset library dependencies to make this
+      // JavaScript execute before edit.module's, so upon initialization we need
+      // to update the entity count manually.
+      this.model.set('entityCount', Drupal.edit.collections.entities.length);
     },
 
-    render: function() {
-      var isQuickEditActive = this.tabModel.get('isQuickEditActive');
-      this.$el.toggleClass('active', isQuickEditActive);
+    /**
+     * Toggle in-place editing.
+     */
+    toggleQuickEdit: function () {
+      // Activate!
+      if (!this.model.get('isActive')) {
+        // If there's only one in-place editable entity, start in-place editing.
+        var editableEntities = Drupal.edit.collections.entities;
+        if (editableEntities.length === 1) {
+          editableEntities.at(0).set('state', 'launching');
+        }
+        // Otherwise, show all contextual links triggers.
+        else {
+          this.model.set('contextualLinksTriggersVisible', true);
+        }
+      }
+      // Deactivate!
+      else {
+        // If there's an entity being in-place edited, stop in-place editing.
+        var activeEntity = this.model.get('activeEntity');
+        if (activeEntity) {
+          activeEntity.set('state', 'deactivating');
+        }
+        // Otherwise, hide all contextual links triggers.
+        else {
+          this.model.set('contextualLinksTriggersVisible', false);
+        }
+      }
+    },
+
+    /**
+     * Tracks the number of in-place editable entities on the page.
+     *
+     * @param Drupal.edit.EntityModel entityModel
+     *   The entity model that was added or removed.
+     * @param Drupal.edit.EntityCollection entityCollection
+     *    The collection of entity models.
+     */
+    countEntities: function (entityModel, entityCollection) {
+      this.model.set('entityCount', entityCollection.length);
+    },
+
+    /**
+     * Tracks whether an entity is actively being in-place edited, and if that's
+     * the case, hide all contextual links triggers.
+     *
+     * @param Drupal.edit.EntityModel entityModel
+     *   The entity model that whose state has changed.
+     * @param String state
+     *   One of Drupal.edit.EntityModel.states.
+     */
+    entityStateChange: function (entityModel, state) {
+      if (state === 'opened') {
+        this.model.set('activeEntity', entityModel);
+        this.model.set('contextualLinksTriggersVisible', false);
+      }
+      else if (state === 'closed') {
+        this.model.set('activeEntity', null);
+      }
+    },
+
+    /**
+     * Update activeness based on two factors, makes it
+     */
+    updateActiveness: function () {
+      // We mark the toolbar tab as active when either an entity is being edited
+      // in-place, or we're showing all contextual links triggers.
+      var hasActiveEntity = !!this.model.get('activeEntity');
+      this.model.set('isActive', hasActiveEntity || this.model.get('contextualLinksTriggersVisible'));
+    },
+
+    /**
+     * Renders visibility & activeness of tab.
+     */
+    render: function () {
+      this.$el.toggleClass('element-invisible', this.model.get('entityCount') === 0);
+      this.$el.toggleClass('active', this.model.get('isActive'));
       return this;
     },
 
-    toggleQuickEdit: function(event) {
-      $quickEditActive = this.tabModel.get('isQuickEditActive');
-      $editProcessed = $('.edit-processed');
-      $editItems = [];
-      $activeItem = '';
-      // Create a list of editable children and highlight them.
-      if ($editProcessed.length > 1) {
-        // Clear storage array.
-        $editItems.length = 0;
-        // Check all .edit-processed items
-        $editProcessed.each(function(index) {
-          if ($(this).attr('data-edit-entity-id')) {
-            // Highlight or remove contextual link highlights.
-            $classes = 'contextual-links-trigger-active quick-edit-contextual-link'
-            // Check for Contextual Link as sibling (ie: Panelizer)
-            $contextualLink = $(this).siblings('.contextual-links-wrapper').find('.contextual-links-trigger');
-            // No sibling, assume it is a child of item.
-            if ($contextualLink.length == 0) {
-              $contextualLink = $(this).find('.contextual-links-trigger');
-            }
-            // Add or remove the appropriate classes.
-            (!$quickEditActive) ? $contextualLink.addClass($classes) : $contextualLink.removeClass($classes);
-            // Search for an active child.
-            if ($(this).hasClass('edit-entity-active')) {
-              $activeItem = $(this); 
-            }
-            // Add the editable child to storage array.
-            $editItems.push($(this));
-          }
-        });
-        // When there is an active child, clear the list making it exclusive.
-        if ($activeItem != '') {
-          $editItems.length = 0;
-          $editItems.push($activeItem);
-        }
-        // Activate or deactivate in the case of an only child.
-        if ($editItems.length == 1) {
-          $state = (!$quickEditActive) ? 'launching' : 'deactivating';
-          $item = Drupal.edit.collections.entities.findWhere({
-            entityID: $editItems[0].attr('data-edit-entity-id'),
-            entityInstanceID: $editItems[0].attr('data-edit-entity-instance-id')
-          });
-          // Only launch without an active item. Only deactivate with an active item.
-          if (($state == 'launching' && $activeItem == '') || ($state == 'deactivating' && $activeItem != '')) {
-            $item.set('state', $state);
-          }
-        }
-        // Toggle the active state for the quick edit navbar tab.
-        this.tabModel.set('isQuickEditActive', !this.tabModel.get('isQuickEditActive'));
-      }
-      event.stopPropagation();
-      event.preventDefault();
-      },
-    }),
-  };
+    /**
+     * Renders contextual links triggers visibility.
+     */
+    renderContextualLinkTriggers: function (model, show) {
+      var classes = 'contextual-links-trigger-active quick-edit-contextual-link';
+      Drupal.edit.collections.entities.forEach(function (editableEntity) {
+        var contextualLinkView = editableEntity.get('contextualLinkView');
+        contextualLinkView.$el
+          .closest('.contextual-links-wrapper')
+          .find('.contextual-links-trigger')
+          .toggleClass(classes, show);
+      });
+    }
+
+  })
+
+};
 
 }(jQuery, Backbone, Drupal));

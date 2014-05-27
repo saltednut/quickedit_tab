@@ -33,6 +33,15 @@ function quickedit_tab_library() {
  * Implements hook_navbar().
  */
 function quickedit_tab_navbar() {
+  if (!user_access('access in-place editing')) {
+    return;
+  }
+
+  // In-place editing is only supported on the front-end.
+  if (path_is_admin(current_path())) {
+    return;
+  }
+
   $items['quickedit_tab_navbar'] = array(
     '#type' => 'navbar_item',
     'tab' => array(

@@ -20,7 +20,7 @@ function quickedit_tab_library() {
       $path . '/js/contextual.js' => $options,
     ),
     'dependencies' => array(
-      array('edit', 'edit'),
+      array('quickedit', 'quickedit'),
       array('system', 'jquery'),
       array('navbar', 'underscore'),
       array('navbar', 'backbone'),

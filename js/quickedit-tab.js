@@ -62,14 +62,14 @@ Drupal.quickEditTab = {
         'change:contextualLinksTriggersVisible': this.renderContextualLinkTriggers
       });
 
-      this.listenTo(Drupal.edit.collections.entities, {
+      this.listenTo(Drupal.quickedit.collections.entities, {
         'add remove reset': this.countEntities,
         'change:state': this.entityStateChange
       });
       // In Drupal 7, we cannot use asset library dependencies to make this
-      // JavaScript execute before edit.module's, so upon initialization we need
+      // JavaScript execute before quickedit.module's, so upon initialization we need
       // to update the entity count manually.
-      this.model.set('entityCount', Drupal.edit.collections.entities.length);
+      this.model.set('entityCount', Drupal.quickedit.collections.entities.length);
     },
 
     /**
@@ -79,7 +79,7 @@ Drupal.quickEditTab = {
       // Activate!
       if (!this.model.get('isActive')) {
         // If there's only one in-place editable entity, start in-place editing.
-        var editableEntities = Drupal.edit.collections.entities;
+        var editableEntities = Drupal.quickedit.collections.entities;
         if (editableEntities.length === 1) {
           editableEntities.at(0).set('state', 'launching');
         }
@@ -105,9 +105,9 @@ Drupal.quickEditTab = {
     /**
      * Tracks the number of in-place editable entities on the page.
      *
-     * @param Drupal.edit.EntityModel entityModel
+     * @param Drupal.quickedit.EntityModel entityModel
      *   The entity model that was added or removed.
-     * @param Drupal.edit.EntityCollection entityCollection
+     * @param Drupal.quickedit.EntityCollection entityCollection
      *    The collection of entity models.
      */
     countEntities: function (entityModel, entityCollection) {
@@ -118,10 +118,10 @@ Drupal.quickEditTab = {
      * Tracks whether an entity is actively being in-place edited, and if that's
      * the case, hide all contextual links triggers.
      *
-     * @param Drupal.edit.EntityModel entityModel
+     * @param Drupal.quickedit.EntityModel entityModel
      *   The entity model that whose state has changed.
      * @param String state
-     *   One of Drupal.edit.EntityModel.states.
+     *   One of Drupal.quickedit.EntityModel.states.
      */
     entityStateChange: function (entityModel, state) {
       if (state === 'opened') {
@@ -157,7 +157,7 @@ Drupal.quickEditTab = {
      */
     renderContextualLinkTriggers: function (model, show) {
       var classes = 'contextual-links-trigger-active quickedit-contextual-link';
-      Drupal.edit.collections.entities.forEach(function (editableEntity) {
+      Drupal.quickedit.collections.entities.forEach(function (editableEntity) {
         var contextualLinkView = editableEntity.get('contextualLinkView');
         contextualLinkView.$el
           .closest('.contextual-links-wrapper')
